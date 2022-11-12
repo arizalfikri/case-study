@@ -14,9 +14,12 @@ import { GoogleLogin } from "react-google-login";
 import FacebookLogin from "react-facebook-login";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import { gapi } from "gapi-script";
+import axios from "axios";
 
 import "./login.css";
+import { useNavigate } from "react-router-dom";
 
+const baseUrl = "http://localhost:4000/";
 const initialData = [
   { label: "Email", placeholder: "Enter email", name: "email", type: "mail" },
   {
@@ -35,8 +38,7 @@ export default function Login() {
   });
   const [signIn, setSignIn] = useState(true);
   const [data, setData] = useState(initialData);
-
-  console.log(data);
+  const navigate = useNavigate();
 
   const handleChangeData = (e) => {
     setNewData({ ...newData, [e.target.name]: e.target.value });
@@ -44,16 +46,35 @@ export default function Login() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log(newData);
+    signIn
+      ? axios
+          .post(baseUrl + "sign-in", newData)
+          .then((res) => navigate("/"))
+          .catch((err) => console.log(err, "error"))
+      : axios
+          .post(baseUrl + "sign-up", newData)
+          .then((res) => setSignIn(true))
+          .catch((err) => console.log(err, "error"));
   };
 
   const responseFacebook = (response) => {
-    console.log(response, "facebook response");
+    axios
+      .post(baseUrl + "social-media-sign", {
+        email: response?.email,
+      })
+      .then(() => navigate("/"))
+      .catch((err) => console.log(err, "error"));
   };
 
   const responseGoogle = (response) => {
-    console.log(response, "google response");
+    axios
+      .post(baseUrl + "social-media-sign", {
+        email: response?.profileObj?.email,
+      })
+      .then(() => navigate("/"))
+      .catch((err) => console.log(err, "error"));
   };
+
   useEffect(() => {
     function start() {
       gapi.client.init({
@@ -113,10 +134,10 @@ export default function Login() {
                       onClick={() =>
                         setData((prev) =>
                           prev.map((el) =>
-                            el.type === "password"
-                              ? { ...el, type: "text" }
-                              : el.name === "password" && el.type === "text"
-                              ? { ...el, type: "password" }
+                            el.name === name
+                              ? el.name === name && el.type === "password"
+                                ? { ...el, type: "text" }
+                                : { ...el, type: "password" }
                               : el
                           )
                         )

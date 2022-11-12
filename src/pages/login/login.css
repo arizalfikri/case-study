@@ -1,0 +1,13 @@
+.btnFb {
+  background-color: #1877f2;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  overflow: hidden;
+  font-size: 16px;
+  height: fit-content;
+  width: 15rem;
+  padding: 0px 8px 0px 0px;
+}
